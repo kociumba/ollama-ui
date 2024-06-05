@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"time"
 )
 
 // App struct
@@ -38,7 +43,81 @@ func (a *App) shutdown(ctx context.Context) {
 	// Perform your teardown here
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+type RequestBody struct {
+	Model  string `json:"model"`
+	Prompt string `json:"prompt"`
+	// Context string `json:"context"`
+	Stream bool `json:"stream"`
+}
+
+type Response struct {
+	Model           string    `json:"model"`
+	CreatedAt       time.Time `json:"created_at"`
+	Response        string    `json:"response"`
+	Done            bool      `json:"done"`
+	Context         []int     `json:"context"`
+	TotalDuration   int64     `json:"total_duration"`
+	LoadDuration    int64     `json:"load_duration"`
+	PromptEvalCount int       `json:"prompt_eval_count"`
+	PromptEvalDur   int64     `json:"prompt_eval_duration"`
+	EvalCount       int       `json:"eval_count"`
+	EvalDuration    int64     `json:"eval_duration"`
+}
+
+func (as *App) GetResponse(prompt string) string {
+
+	var requestBody = RequestBody{
+		Model:  "dolphincoder",
+		Prompt: prompt,
+		// Context: "This is the first message in the conversation anwser professionally",
+		Stream: false,
+	}
+
+	fmt.Println("Marshaling request body:", requestBody)
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		fmt.Println("Error marshaling request body:", err)
+		// return true
+	}
+
+	fmt.Println("Sending a POST")
+	url := "http://localhost:11434/api/generate?stream=false"
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		// return true
+	}
+
+	fmt.Println("Setting headers")
+	req.Header.Set("Content-Type", "application/json")
+
+	fmt.Println("Sending request")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error sending request:", err)
+		// return true
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("Reading response")
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		// return true
+	}
+
+	fmt.Println("Unmarshaling response")
+	var response Response
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		fmt.Println("Error unmarshaling response:", err)
+		// return true
+	}
+
+	fmt.Println("Printing response")
+	fmt.Printf("%+v\n", response.Response)
+
+	return response.Response
+	// return false
 }
