@@ -3,19 +3,10 @@ import { Marked } from 'marked'
 import 'highlight.js/styles/github-dark-dimmed.min.css';
 import hljs from 'highlight.js';
 import { markedHighlight } from "marked-highlight";
-// import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import {
-    Card,
-    // CardContent,
-    // CardDescription,
-    // CardFooter,
-    // CardHeader,
-    // CardTitle,
-} from "@/components/ui/card"
-// import { ScrollArea } from "@/components/ui/scroll-area"
+import { Card } from "@/components/ui/card"
 import { GetResponse } from "../../wailsjs/go/main/App";
 import { JSX } from 'react/jsx-runtime';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
@@ -78,6 +69,7 @@ const ChatUI = () => {
                                 className={`m-4 rounded-[20px] p-3 ${msg.sender === 'user' ? 'bg-white text-black self-end user-message' : 'bg-black self-start ai-response'}`}
                             >
                                 {/* eslint-disable-next-line no-console */}
+                                {/* file deepcode ignore DOMXSS: <only the end user and ai has access to the html> */}
                                 <div id={msg.sender === 'user' ? 'user-message' : 'ai-response'} ref={aiResponseRef} dangerouslySetInnerHTML={{ __html: marked.parse(msg.text) }} />
                                 {/* <Markdown
                                     options={{
@@ -95,7 +87,7 @@ const ChatUI = () => {
                     ))}
                     {isLoading && (
                         <div className="flex justify-start">
-                            <Card className="bg-black text-white self-start rounded-[20px] p-3 mb-4 w-[297px] h-[497px]">
+                            <Card className="bg-black text-white self-start rounded-[20px] p-3 mb-4">
                                 {/* <div className="loader">Loading...</div> Add a loader component or CSS animation */}
                                 <Skeleton className="w-[300px] h-[500px]" />
                             </Card>

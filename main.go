@@ -53,6 +53,7 @@ func main() {
 		},
 		// Windows platform specific options
 		Windows: &windows.Options{
+			IsZoomControlEnabled: true,
 			WebviewIsTransparent: true,
 			WindowIsTranslucent:  true,
 			DisableWindowIcon:    false,
