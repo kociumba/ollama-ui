@@ -8,7 +8,7 @@ tasks:
     - wails dev
   build:
     cmds:
-    - wails build
+    - wails build -clean
   build-r:
     cmds:
-    - wails build -upx
+    - wails build -clean -nsis -upx
