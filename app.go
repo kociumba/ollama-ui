@@ -66,9 +66,17 @@ type Response struct {
 
 func (as *App) GetResponse(prompt string) string {
 
+	var prepromt = `
+	You can use the the following in you response: 
+	markdown which will be rendered according to it's syntax, 
+	html outside of markdown codeblocks will be rendered according to it's syntax,
+	links are going to be openable when embedded with markdown.
+	This is the prompt you need to respond to: 
+	`
+
 	var requestBody = RequestBody{
 		Model:  "dolphincoder",
-		Prompt: prompt,
+		Prompt: prepromt + prompt,
 		// Context: "This is the first message in the conversation anwser professionally",
 		Stream: false,
 	}

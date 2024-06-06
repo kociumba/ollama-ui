@@ -25,12 +25,12 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "ollama-ui",
-		Width:             1024,
-		Height:            768,
+		Width:             1080,
+		Height:            720,
 		MinWidth:          1024,
 		MinHeight:         768,
-		MaxWidth:          1280,
-		MaxHeight:         800,
+		MaxWidth:          1920,
+		MaxHeight:         1080,
 		DisableResize:     false,
 		Fullscreen:        false,
 		Frameless:         false,
