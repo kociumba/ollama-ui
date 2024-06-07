@@ -5,4 +5,6 @@ export function GetResponse(arg1:string):Promise<string>;
 
 export function ListModels():Promise<Array<string>>;
 
+export function PullModel(arg1:string):Promise<string>;
+
 export function SetModel(arg1:string):Promise<boolean>;

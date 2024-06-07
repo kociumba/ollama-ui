@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
-import { JSX } from 'react/jsx-runtime';
+// import { JSX } from 'react/jsx-runtime';
 import {
     Dialog,
     DialogContent,
@@ -9,7 +9,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { ListModels, SetModel } from '../../wailsjs/go/main/App';
+import { ListModels, SetModel, PullModel } from '../../wailsjs/go/main/App';
 import {
     Select,
     SelectContent,
@@ -17,23 +17,46 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { MainView } from '../App'
+// import { Button } from "@/components/ui/button"
+import { Input } from './ui/input';
 
 
 interface SelectProps {
     modelList: string[];
 }
 
-const Sidebar = (props: JSX.IntrinsicAttributes & React.ClassAttributes<HTMLDivElement> & React.HTMLAttributes<HTMLDivElement>) => {
+type SetMainView = (view: MainView) => void;
+
+interface SidebarProps {
+    setCurrentMain: SetMainView;
+}
+
+
+const Sidebar: React.FC<SidebarProps> = ({setCurrentMain, ...props }) => {
     return (
         <div
-            className='sidebar-container'
+            className='sidebar-container flex h-full items-left justify-left p-6 bg-zinc-900'
             {...props}
         >
             <div className='min-h-screen sidebar'>
                 <Card className="min-h-screen rounded-none bg-zinc-900 border-none">
-                    <div className="text-2xl ml-1/4 space-y-4">
-                        <div className='font-semibold p-4'>Ollama UI</div>
+                    <div className="text-2xl ml-1/4 space-y-4 flex flex-col">
+                        <div className='flex flex-row'>
+                            {/* <img src={'frontend/src/assets/appicon.png'} alt="Logo"></img> */}
+                            <div className='font-semibold p-4'>Ollama UI</div>
+                        </div>
+                        <button onMouseDown={() => setCurrentMain(MainView.ChatUI)}>
+                            <div className='p-4 dialog transition-all w-fit'>Chat</div>
+                        </button>
                         <ModelDialog />
+                        {/* <Button onMouseDown={() => setCurrentMain(MainView.ChatUI)}>ChatUI</Button>
+                        <Button onMouseDown={() => setCurrentMain(MainView.ModelBrowse)}>ModelBrowse</Button> */}
+                        {/* <button onMouseDown={() => setCurrentMain(MainView.ModelBrowse)}> */}
+                        {/* <button>
+                            <div className='p-4 dialog transition-all w-fit'>Pull Model</div>
+                        </button> */}
+                        <PullModelDialog />
                     </div>
                 </Card>
             </div>
@@ -68,8 +91,8 @@ const ModelDialog = () => {
     }, []);
     return (
         <Dialog>
-            <DialogTrigger>
-                <a className='p-4 dialog transition-all'>Models</a>
+            <DialogTrigger style={{ display: 'flex' }}>
+                <a className='p-4 dialog transition-all'>Select Models</a>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
@@ -107,4 +130,47 @@ export function SelectModel({ modelList }: SelectProps) {
             </SelectContent>
         </Select>
     );
+}
+
+export function PullModelDialog() {
+    const [modelStatus, setModelStatus] = useState<string>('unknown');
+    
+
+    return (
+        <Dialog>
+        <DialogTrigger style={{ display: 'flex' }}>
+            <a className='p-4 dialog transition-all'>Pull Models</a>
+        </DialogTrigger>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Pull a model by name</DialogTitle>
+                <DialogDescription>
+                    <div className='pb-4'>Model name:</div>
+                    <div className='relative'>
+                        <Input 
+                            placeholder="Enter model name" 
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    setModelStatus('loading');
+                                    PullModel(e.currentTarget.value).then(setModelStatus);
+                                }
+                            }}
+                        />
+                        {modelStatus === 'loading' && (
+                            <div className='absolute inset-y-0 right-4 flex items-center pointer-events-none'>
+                                <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </div>
+                        )}
+                        {modelStatus === "success" && <div className='pt-4 text-green-400'>Model pulled successfully!</div>}
+                        {modelStatus === "" && <div className='pt-4 text-red-400'>Model failed to pull!</div>}
+                    </div>
+                </DialogDescription>
+            </DialogHeader>
+        </DialogContent>
+    </Dialog>
+    )
 }

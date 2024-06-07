@@ -11,7 +11,7 @@ import { GetResponse } from "../../wailsjs/go/main/App";
 import { JSX } from 'react/jsx-runtime';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 
-const ChatUI = () => {
+const ChatUI = (...props: any[]) => {
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<{ text: string; sender: 'user' | 'ai' }[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +59,7 @@ const ChatUI = () => {
     }, [messages]);
 
     return (
-        <div ref={parent} className="p-10" style={{ height: '100%' }}>
+        <div ref={parent} className="p-10" style={{ height: '100%' }} {...props}>
             <div className="p-4">
                 <div className="messages-container overflow-auto">
                     {messages.map((msg, index) => (

@@ -10,6 +10,10 @@ export function ListModels() {
   return window['go']['main']['App']['ListModels']();
 }
 
+export function PullModel(arg1) {
+  return window['go']['main']['App']['PullModel'](arg1);
+}
+
 export function SetModel(arg1) {
   return window['go']['main']['App']['SetModel'](arg1);
 }

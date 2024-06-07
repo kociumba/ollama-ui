@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -66,12 +67,22 @@ type Response struct {
 	EvalDuration    int64     `json:"eval_duration"`
 }
 
-type Models struct {
-	Models []Model `json:"models"`
+type Model struct {
+	Name       string `json:"name"`
+	ModifiedAt string `json:"modified_at"`
+	Size       int    `json:"size"`
+	Digest     string `json:"digest"`
+	Details    struct {
+		Format            string      `json:"format"`
+		Family            string      `json:"family"`
+		Families          interface{} `json:"families"`
+		ParameterSize     string      `json:"parameter_size"`
+		QuantizationLevel string      `json:"quantization_level"`
+	} `json:"details"`
 }
 
-type Model struct {
-	Name string `json:"name"`
+type Models struct {
+	Models []Model `json:"models"`
 }
 
 var models Models
@@ -183,26 +194,78 @@ func (as *App) GetResponse(prompt string) string {
 }
 
 func GetModels() Models {
+	endpoint := "/api/tags"
+	body := ApiReq(endpoint, "GET", nil)
 
-	url := "http://localhost:11434/api/tags"
-	req, err := http.Get(url)
+	var models Models
+	err := json.Unmarshal(body, &models)
 	if err != nil {
-		log.Error("Error creating request:", "err", err)
-		return Models{}
-	}
-	defer req.Body.Close()
-
-	body, err := io.ReadAll(req.Body)
-	if err != nil {
-		log.Error("Error reading response body: %v\n", "err", err)
-		return Models{}
-	}
-
-	err = json.Unmarshal(body, &models)
-	if err != nil {
-		log.Error("Error parsing JSON response: %v\n", "err", err)
+		log.Fatalf("Error parsing JSON response: %v", err)
 		return Models{}
 	}
 
 	return models
+}
+
+type IsDone struct {
+	Status string `json:"status"`
+}
+
+func (as *App) PullModel(name string) (string, error) {
+	endpoint := "/api/pull"
+
+	log.Info("Pulling model:", "name", name)
+	// Prepare request body
+	requestBody, err := json.Marshal(map[string]interface{}{
+		"name":   name,
+		"stream": false, // Optional: Set to true if you want a streaming response
+	})
+	if err != nil {
+		log.Error("Error marshaling request body:", "err", err)
+		return "", err
+	}
+
+	// Make POST request
+	resp := ApiReq(endpoint, "POST", requestBody)
+
+	// Handle response
+	var data IsDone
+	err = json.Unmarshal(resp, &data)
+	if err != nil {
+		log.Error("Error parsing JSON response:", "err", err)
+		return "", err
+	}
+
+	if data.Status == "success" {
+		log.Info("Model pulled:", "name", name)
+		return data.Status, nil
+	}
+
+	return "", fmt.Errorf("failed to pull model: %s", name)
+}
+
+func ApiReq(endpoint string, method string, jsonBody []byte) []byte {
+	url := "http://localhost:11434" + endpoint
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(jsonBody))
+	if err != nil {
+		log.Fatalf("Error creating request: %v", err)
+		return nil
+	}
+	defer req.Body.Close()
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatalf("Error making request: %v", err)
+		return nil
+	}
+	defer resp.Body.Close()
+
+	result, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalf("Error reading response body: %v", err)
+		return nil
+	}
+
+	return result
 }
