@@ -153,7 +153,7 @@ export function PullModelDialog() {
                                 if (e.key === 'Enter') {
                                     e.preventDefault();
                                     setModelStatus('loading');
-                                    PullModel(e.currentTarget.value).then(setModelStatus);
+                                    PullModel(e.currentTarget.value).then(setModelStatus).catch(() => setModelStatus(""));
                                 }
                             }}
                         />

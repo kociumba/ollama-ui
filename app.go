@@ -47,10 +47,10 @@ func (a *App) shutdown(ctx context.Context) {
 }
 
 type RequestBody struct {
-	Model  string `json:"model"`
-	Prompt string `json:"prompt"`
-	// Context string `json:"context"`
-	Stream bool `json:"stream"`
+	Model   string `json:"model"`
+	Prompt  string `json:"prompt"`
+	Context []int  `json:"context"`
+	Stream  bool   `json:"stream"`
 }
 
 type Response struct {
@@ -94,6 +94,8 @@ var requestBody = RequestBody{
 	Stream: false,
 }
 
+var contexFromLastPrompt = []int{}
+
 // always call SetModel() before GetResponse(), if not called before it will default to "dolphincoder"
 func (as *App) SetModel(Model string) bool {
 	requestBody.Model = Model
@@ -135,11 +137,10 @@ func (as *App) ListModels() []string {
 func (as *App) GetResponse(prompt string) string {
 
 	var prepromt = `
-	You can use the the following in you response: 
-	markdown which will be rendered according to it's syntax, 
-	html outside of markdown codeblocks will be rendered according to it's syntax,
-	links are going to be openable when embedded with markdown.
-	This is the prompt you need to respond to: 
+	Your response will be rendered as html so use it where needed,
+	any markdown will be rendered according to it's syntax and will take priority over html stling,
+	links, images, videos, iframes, etc will show up as expected when rendering html.
+	This is the prompt you need to respond to:
 	`
 
 	requestBody.Prompt = prepromt + prompt
@@ -188,6 +189,8 @@ func (as *App) GetResponse(prompt string) string {
 
 	log.Info("Printing response")
 	log.Infof("%+v\n", response.Response)
+
+	requestBody.Context = append(requestBody.Context, response.Context...)
 
 	return response.Response
 	// return false
