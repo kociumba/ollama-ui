@@ -57,6 +57,7 @@ body {
 
 .sidebar {
     position: fixed;
+    top: 0;
     /* width: 100%; */
     flex-grow: 1;
 }
@@ -65,6 +66,30 @@ body {
   display: flex;
 }
 
+.dialog {
+    color: white;
+    text-decoration: none;
+    position: relative;
+    padding-left: 16px; /* Ensure the text aligns with the underline */
+}
+
+.dialog::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 10px;
+    left: 16px; /* Align the underline with the text */
+    right: 16px; /* Ensure the underline doesn't extend too far */
+    background-color: white;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.dialog:hover::after {
+    visibility: visible;
+    width: calc(100% - 32px); /* Account for both left and right padding */
+}
 
 .send-button {
     background: none;

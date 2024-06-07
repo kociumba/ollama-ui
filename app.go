@@ -77,7 +77,7 @@ type Model struct {
 var models Models
 
 var requestBody = RequestBody{
-	Model:  "dolphincoder",
+	Model:  "dolphincoder:latest",
 	Prompt: "",
 	// Context: "This is the first message in the conversation anwser professionally",
 	Stream: false,
@@ -96,6 +96,11 @@ func (as *App) SetModel(Model string) bool {
 	for _, model := range models.Models {
 		if strings.Contains(model.Name, Model) {
 			log.Info("Model found:", "Model", model.Name)
+
+			requestBody.Model = model.Name
+
+			log.Info("Setting model to:", "Model", requestBody.Model)
+
 			return true
 		}
 	}

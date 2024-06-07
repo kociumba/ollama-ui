@@ -28,10 +28,10 @@ function App() {
         >
 
             <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel>
+                <ResizablePanel minSize={20} maxSize={20} defaultSize={20}>
                     <Sidebar 
                     // className='flex h-full items-center justify-center p-6 bg-zinc-900' 
-                    className='flex h-full items-center justify-center p-6 bg-zinc-900'
+                    className='flex h-full items-left justify-left p-6 bg-zinc-900'
                     />
                 </ResizablePanel>
                 <ResizableHandle />
