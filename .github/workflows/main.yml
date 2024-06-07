@@ -10,7 +10,7 @@ jobs:
         build: [
           {name: ollama-ui-linux, platform: linux/amd64, os: ubuntu-latest},
           {name: ollama-ui-windows, platform: windows/amd64, os: windows-latest},
-          {name: ollama-ui-mac, platform: darwin/universal, os: macos-latest}
+          {name: ollama-ui-darwin, platform: darwin/universal, os: macos-latest}
         ]
     runs-on: ${{ matrix.build.os }}
     steps:
