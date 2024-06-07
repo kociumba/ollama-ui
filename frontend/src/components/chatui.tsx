@@ -56,7 +56,7 @@ const ChatUI = () => {
 
     useEffect(() => {
         scrollToBottom()
-      }, [messages]);
+    }, [messages]);
 
     return (
         <div ref={parent} className="p-10" style={{ height: '100%' }}>
@@ -96,10 +96,10 @@ const ChatUI = () => {
                     <div ref={messagesEndRef} />
                 </div >
                 <div className="flex items-center mt-4">
-                    <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 w-3/4">
+                    <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2 w-2/4">
                         <Textarea
                             placeholder="Ask AI..."
-                            className="resize-none bg-white text-black pl-4 pr-10 shadow-2xl shadow-black"
+                            className="resize-none font-bold bg-white text-black pl-4 pr-10 shadow-2xl shadow-black"
                             value={input}
                             onChange={e => setInput(e.target.value)}
                             onKeyDown={(e) => {
@@ -109,8 +109,8 @@ const ChatUI = () => {
                                 }
                             }}
                         />
-                        <Button onClick={handleSend} className="absolute right-2 top-1/2 -translate-y-1/2 text-black bg-transparent">
-                            <PlaneIcon className="w-4 h-4" />
+                        <Button onClick={handleSend} className="send-button absolute right-2 top-1/2 -translate-y-1/2 text-black bg-transparent">
+                            <Send  className="transition-all w-4 h-4" />
                         </Button>
                     </div>
                 </div>
@@ -121,21 +121,24 @@ const ChatUI = () => {
 
 export default ChatUI;
 
-function PlaneIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+function Send(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
     return (
         <svg
-            {...props}
             xmlns="http://www.w3.org/2000/svg"
             width="24"
             height="24"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            className="lucide lucide-send"
+            {...props}
         >
-            <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
+            <path d="m22 2-7 20-4-9-9-4Z" />
+            <path d="M22 2 11 13" />
         </svg>
     )
 }
+

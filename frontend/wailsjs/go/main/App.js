@@ -5,3 +5,11 @@
 export function GetResponse(arg1) {
   return window['go']['main']['App']['GetResponse'](arg1);
 }
+
+export function ListModels() {
+  return window['go']['main']['App']['ListModels']();
+}
+
+export function SetModel(arg1) {
+  return window['go']['main']['App']['SetModel'](arg1);
+}

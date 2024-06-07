@@ -1,8 +1,15 @@
 import ChatUI from '@/components/chatui';
+import Sidebar from '@/components/sidebar';
 import { ThemeProvider } from "@/components/theme-provider"
 import { useEffect } from "react"
 import hljs from "highlight.js";
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import {
+    ResizableHandle,
+    ResizablePanel,
+    ResizablePanelGroup,
+} from "@/components/ui/resizable"
+
 
 function App() {
     const [parent] = useAutoAnimate(); // Remove the enableAnimations function since we don't need to toggle animations
@@ -19,16 +26,26 @@ function App() {
             enableSystem
             disableTransitionOnChange
         >
-            <div className="min-h-screen grid place-items-center mx-auto py-8 bg-transparent">
-                <div className="text-2xl font-bold flex flex-col items-center space-y-4">
-                    {/* <h1>ollama ui</h1> */}
-                    {/* <Button onClick={() => getResponse()}>Get response</Button> */}
-                    {/* <Button onClick={() => console.log(ollama.list())}>list models</Button> */}
-                    <div ref={parent} className="text-2xl font-bold flex flex-col items-center space-y-4">
-                        <ChatUI />
+
+            <ResizablePanelGroup direction="horizontal">
+                <ResizablePanel>
+                    <Sidebar 
+                    // className='flex h-full items-center justify-center p-6 bg-zinc-900' 
+                    className='flex h-full items-center justify-center p-6 bg-zinc-900'
+                    />
+                </ResizablePanel>
+                <ResizableHandle />
+                <ResizablePanel defaultSize={80}>
+                    <div className="min-h-screen grid place-items-center mx-auto py-8 bg-transparent">
+                        <div className="text-2xl flex flex-col items-center space-y-4">
+                            <div ref={parent} className="text-2xl flex flex-col items-center space-y-4">
+                                <ChatUI />
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </ResizablePanel>
+            </ResizablePanelGroup>
+
         </ThemeProvider>
     )
 }
