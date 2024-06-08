@@ -90,11 +90,14 @@ var models Models
 var requestBody = RequestBody{
 	Model:  "dolphincoder:latest",
 	Prompt: "",
-	// Context: "This is the first message in the conversation anwser professionally",
 	Stream: false,
 }
 
-var contexFromLastPrompt = []int{}
+// var contexFromLastPrompt = []int{}
+
+func (as *App) CurrentModel() string {
+	return requestBody.Model
+}
 
 // always call SetModel() before GetResponse(), if not called before it will default to "dolphincoder"
 func (as *App) SetModel(Model string) bool {
@@ -113,6 +116,9 @@ func (as *App) SetModel(Model string) bool {
 			requestBody.Model = model.Name
 
 			log.Info("Setting model to:", "Model", requestBody.Model)
+			log.Warn("Cleaning context from other model")
+
+			requestBody.Context = []int{}
 
 			return true
 		}
@@ -130,6 +136,8 @@ func (as *App) ListModels() []string {
 	for _, model := range models.Models {
 		modelsS = append(modelsS, model.Name)
 	}
+
+	log.Info("ModelsS:", "modelsS", modelsS)
 
 	return modelsS
 }
@@ -207,14 +215,19 @@ func GetModels() Models {
 		return Models{}
 	}
 
+	log.Info("Models:", "models", models)
+
 	return models
 }
 
 type IsDone struct {
 	Status string `json:"status"`
+	Error  string `json:"error"`
 }
 
-func (as *App) PullModel(name string) (string, error) {
+// return index 0 = status, index 1 = error
+// i hate it thanks 🥲
+func (as *App) PullModel(name string) []string {
 	endpoint := "/api/pull"
 
 	log.Info("Pulling model:", "name", name)
@@ -225,7 +238,7 @@ func (as *App) PullModel(name string) (string, error) {
 	})
 	if err != nil {
 		log.Error("Error marshaling request body:", "err", err)
-		return "", err
+		return []string{"", fmt.Sprint(err)}
 	}
 
 	// Make POST request
@@ -236,15 +249,20 @@ func (as *App) PullModel(name string) (string, error) {
 	err = json.Unmarshal(resp, &data)
 	if err != nil {
 		log.Error("Error parsing JSON response:", "err", err)
-		return "", err
+		return []string{"", fmt.Sprint(err)}
+	}
+
+	if data.Error != "" {
+		log.Error("Error pulling model:", "name", name, "error", data.Error)
+		return []string{"", data.Error}
 	}
 
 	if data.Status == "success" {
 		log.Info("Model pulled:", "name", name)
-		return data.Status, nil
+		return []string{data.Status, data.Status}
 	}
 
-	return "", fmt.Errorf("failed to pull model: %s", name)
+	return []string{"", fmt.Sprintf("failed to pull model: %s", name)}
 }
 
 func ApiReq(endpoint string, method string, jsonBody []byte) []byte {
